@@ -17,11 +17,14 @@ jobs:
     name: Download ksj files
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Read config
         id: read_config
         uses: pietrobolcato/action-read-yaml@1.1.0
         with:
-          config: ./config.yml
+          config: ${{ github.workspace }}/config.yml
       
       - name: Define variables
         id: variables
