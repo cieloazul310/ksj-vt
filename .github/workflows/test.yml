@@ -2,8 +2,7 @@ name: Setup tippecanoe
 
 on:
   # Runs on pushes targeting the default branch
-  pull_request:
-    types: [opened, synchronize]
+  push:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
