@@ -24,9 +24,9 @@ jobs:
         with:
           path: |
             ${{ env.DATA_PATH }}
-          key: ${{ runner.os }}-ksj-vt-${{ hashFiles('public') }}
+          key: ${{ runner.os }}-ksj-vt
           restore-keys: |
-            ${{ runner.os }}-ksj-vt-
+            ${{ runner.os }}-ksj-vt
   
       - name: Download files & unzip
         if: steps.restore-cache.outputs.cache-hit != 'true'
@@ -40,7 +40,7 @@ jobs:
         with:
           path: |
             ${{ env.DATA_PATH }}
-          key: ${{ steps.restore-cache.outputs }}
+          key: ${{ runner.os }}-ksj-vt
 
   tippecanoe:
     name: Tippecanoe
