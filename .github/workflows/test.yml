@@ -1,50 +1,39 @@
-name: Setup tippecanoe
+name: Download test
 
 on:
   # Runs on pushes targeting the default branch
   push:
+    branches-ignore:
+      - main
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
-  TIPPECANOE_PATH: ./tippecanoe
   DATA_PATH: ./data
-  KSJ_ID: N05
-  KSJ_YEAR: "22"
 
 jobs:  
   download:
     name: Download ksj files
     runs-on: ubuntu-latest
     steps:
+      - name: Read config
+        id: read_config
+        uses: pietrobolcato/action-read-yaml@1.1.0
+        with:
+          config: ${{ github.workspace }}/config.yml
+      
+      - name: Define variables
+        id: variables
+        run: |
+          echo "id=${{ steps.read_config.outputs.id }}" >> $GITHUB_OUTPUT
+          echo "path=${{ steps.read_config.outputs.id }}-${{ steps.read_config.outputs.year }}" >> $GITHUB_OUTPUT
+          echo "filename=${{ steps.read_config.outputs.id }}-${{ steps.read_config.outputs.year }}_${{ steps.read_config.outputs.type }}" >> $GITHUB_OUTPUT
+
       - name: Download files & unzip
         run: |
-          curl -L https://nlftp.mlit.go.jp/ksj/gml/data/${{ env.KSJ_ID }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML.zip -o ${{ env.DATA_PATH }}.zip
+          curl -L https://nlftp.mlit.go.jp/ksj/gml/data/${{ steps.variables.outputs.id }}/${{ steps.variables.outputs.path }}/${{ steps.variables.outputs.filename }}.zip -o ${{ env.DATA_PATH }}.zip
           unzip ${{ env.DATA_PATH }}.zip -d ${{ env.DATA_PATH }}
-
-      - name: Clone tippecanoe
-        uses: actions/checkout@v4
-        with:
-          repository: felt/tippecanoe
-          path: ${{ env.TIPPECANOE_PATH }}
-          fetch-depth: 0
       
-      # https://zenn.dev/kabuakantech/articles/c6bb510e631f1f
-      - name: Change owner
-        run: |
-          sudo chown -R runner:docker /usr/local/share/
-
-      - name: Make
-        run: |
-          cd ${{ env.TIPPECANOE_PATH }}
-          make -j
-          make install
-          cd ../
-      
-      - name: Generate
-        run: |
-          mkdir ./dist
-          tippecanoe -o ./dist/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}.pmtiles -Z4 -z15 \
-          -L section:${{ env.DATA_PATH }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML/utf8/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_RailroadSection2.geojson \
-          -L station:${{ env.DATA_PATH }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML/utf8/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_Station2.geojson
+      - name: Check tree
+        run: tree ${{ env.DATA_PATH }}
