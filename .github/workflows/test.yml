@@ -18,29 +18,10 @@ jobs:
     name: Download ksj files
     runs-on: ubuntu-latest
     steps:
-      - name: Restore cache
-        id: restore-cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ${{ env.DATA_PATH }}
-          key: ${{ runner.os }}-ksj-vt
-          restore-keys: |
-            ${{ runner.os }}-ksj-vt
-  
       - name: Download files & unzip
-        if: steps.restore-cache.outputs.cache-hit != 'true'
         run: |
           curl -L https://nlftp.mlit.go.jp/ksj/gml/data/${{ env.KSJ_ID }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML.zip -o ${{ env.DATA_PATH }}.zip
           unzip ${{ env.DATA_PATH }}.zip -d ${{ env.DATA_PATH }}
-      
-      - name: Save Primes
-        id: cache-primes-save
-        uses: actions/cache/save@v3
-        with:
-          path: |
-            ${{ env.DATA_PATH }}
-          key: ${{ runner.os }}-ksj-vt
 
   tippecanoe:
     name: Tippecanoe
