@@ -10,7 +10,7 @@ on:
 env:
   TIPPECANOE_PATH: ./tippecanoe
   DATA_PATH: ./data
-  KSJ_ID: N05-22_GML
+  KSJ_ID: N05
   KSJ_YEAR: "22"
 
 jobs:
