@@ -46,5 +46,5 @@ jobs:
         run: |
           mkdir ./dist
           tippecanoe -o ./dist/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}.pmtiles -Z4 -z15 \
-          -L section:${{ env.DATA_PATH }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML/utf8/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_RailroadSection2.geojson
+          -L section:${{ env.DATA_PATH }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML/utf8/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_RailroadSection2.geojson \
           -L station:${{ env.DATA_PATH }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML/utf8/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_Station2.geojson
