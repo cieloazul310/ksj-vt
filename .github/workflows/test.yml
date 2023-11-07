@@ -9,6 +9,9 @@ on:
 
 env:
   TIPPECANOE_PATH: ./tippecanoe
+  DATA_PATH: ./data
+  KSJ_ID: N05-22_GML
+  KSJ_YEAR: "22"
 
 jobs:
   setup:
@@ -18,6 +21,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       
+      - name: Restore cache
+        id: restore-cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ${{ env.DATA_PATH }}
+          key: ${{ runner.os }}-ksj-vt-${{ hashFiles('public') }}
+          restore-keys: |
+            ${{ runner.os }}-ksj-vt-
+  
+  tippecanoe:
+    name: Tippecanoe
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
       - name: Clone tippecanoe
         uses: actions/checkout@v4
         with:
@@ -25,6 +43,11 @@ jobs:
           path: ${{ env.TIPPECANOE_PATH }}
           fetch-depth: 0
       
+      # https://zenn.dev/kabuakantech/articles/c6bb510e631f1f
+      - name: Change owner
+        run: |
+          sudo chown -R runner:docker /usr/local/share/
+
       - name: Make
         run: |
           cd ${{ env.TIPPECANOE_PATH }}
@@ -35,3 +58,24 @@ jobs:
       - name: Test
         run: |
           tippecanoe --help
+
+  download:
+    name: Download ksj files
+    runs-on: ubuntu-latest
+    needs: setup
+    steps:
+      - name: Download files & unzip
+        run: |
+          curl -L https://nlftp.mlit.go.jp/ksj/gml/data/${{ env.KSJ_ID }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML.zip -o ${{ env.DATA_PATH }}.zip
+          unzip ${{ env.DATA_PATH }}.zip -d ${{ env.DATA_PATH }}
+
+  generate:
+    name: Generate pmtiles
+    runs-on: ubuntu-latest
+    needs: [setup, tippecanoe, download]
+    steps:
+      - name: Generate
+        run: |
+          tippecanoe -o ./dist/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}.pmtiles -Z4 -z15 \
+          -L section:${{ env.DATA_PATH }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML/utf8/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_RailroadSection2.geojson
+          -L station:${{ env.DATA_PATH }}/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_GML/utf8/${{ env.KSJ_ID }}-${{ env.KSJ_YEAR }}_Station2.geojson
