@@ -1,0 +1,8 @@
+id: N05
+year: "22"
+type: GML
+min_zoom: 4
+max_zoom: 15
+layers:
+  section: RailroadSection2
+  station: Station2
