@@ -76,7 +76,10 @@ jobs:
       - name: Generate
         run: |
           mkdir ./dist
-          tippecanoe -o ./dist/${{ steps.variables.outputs.path }}.pmtiles -Z4 -z15 \
+          tippecanoe -o ./dist/${{ steps.variables.outputs.path }}.pmtiles \
+          --minimum-zoom=4 \
+          --maximum-zoom=15 \
+          --base-zoom=13 \
           -L section:${{ env.DATA_PATH }}/${{ steps.variables.outputs.filename }}/utf8/${{ steps.variables.outputs.path }}_RailroadSection2.geojson \
           -L station:${{ env.DATA_PATH }}/${{ steps.variables.outputs.filename }}/utf8/${{ steps.variables.outputs.path }}_Station2.geojson
 
