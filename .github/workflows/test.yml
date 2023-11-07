@@ -1,0 +1,38 @@
+name: Setup tippecanoe
+
+on:
+  # Runs on pushes targeting the default branch
+  pull_request:
+    types: [opened, synchronize]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  TIPPECANOE_PATH: ./tippecanoe
+
+jobs:
+  setup:
+    name: Setup tippecanoe
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      
+      - name: Clone tippecanoe
+        uses: actions/checkout@v4
+        with:
+          repository: felt/tippecanoe
+          path: ${{ env.TIPPECANOE_PATH }}
+          fetch-depth: 0
+      
+      - name: Make
+        run: |
+          cd ${{ env.TIPPECANOE_PATH }}
+          make -j
+          make install
+          cd ../
+      
+      - name: Test
+        run: |
+          tippecanoe --help
