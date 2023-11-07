@@ -68,7 +68,7 @@ jobs:
           cd ./tippecanoe
           make -j
           make install
-          cd ${{ github.workspace }}
+          cd ../
       
       - name: Generate
         run: |
