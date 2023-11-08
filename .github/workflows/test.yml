@@ -74,3 +74,7 @@ jobs:
           ${{ steps.read_config.outputs.base_zoom != '' && join('--base-zoom=', steps.read_config.outputs.base_zoom) || '' }} \
           -L section:${{ env.FULL_PATH }}_RailroadSection2.geojson \
           -L station:${{ env.FULL_PATH }}_Station2.geojson
+
+      - name: Test
+        run: |
+          echo ${{ join('--minimum-zoom=', steps.variables.outputs.path_with_type) }} }}
