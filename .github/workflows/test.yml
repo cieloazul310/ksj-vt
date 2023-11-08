@@ -69,19 +69,8 @@ jobs:
           mkdir ./dist
           tippecanoe \
           -o ./dist/${{ steps.read_config.outputs.output || steps.variables.outputs.path }}.pmtiles \
-          if [[ ${{ steps.read_config.outputs.min_zoom }} != "" ]]; then
-            --minimum-zoom=${{ steps.read_config.outputs.min_zoom }} \
-            exit 0
-          fi
-          if [[ ${{ steps.read_config.outputs.max_zoom }} != "" ]]; then
-            --maximum-zoom=${{ steps.read_config.outputs.max_zoom }} \
-            exit 0
-          else
-            -zg \
-          fi
-          if [[ ${{ steps.read_config.outputs.base_zoom }} != "" ]]; then
-            --base-zoom=${{ steps.read_config.outputs.base_zoom }} \
-            exit 0
-          fi
+          ${{ steps.read_config.outputs.min_zoom && join('--minumum-zoom=', steps.read_config.outputs.min_zoom) || '' }} \
+          ${{ steps.read_config.outputs.max_zoom != '' && join('--maximum-zoom=', steps.read_config.outputs.max_zoom) || '-zg' }} \
+          ${{ steps.read_config.outputs.base_zoom != '' && join('--base-zoom=', steps.read_config.outputs.base_zoom) || '' }} \
           -L section:${{ env.FULL_PATH }}_RailroadSection2.geojson \
           -L station:${{ env.FULL_PATH }}_Station2.geojson
