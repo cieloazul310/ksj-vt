@@ -23,12 +23,17 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  TIPPECANOE_PATH: ./tippecanoe
   DATA_PATH: ./data
 
 jobs:  
+  download:
+    uses: ./.github/workflows/download.yml
+    with:
+      data_path: ./data
+
   build:
     name: Download ksj files
+    needs: download
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -40,17 +45,11 @@ jobs:
         with:
           config: ${{ github.workspace }}/config.yml
       
-      - name: Define variables
-        id: variables
-        run: |
-          echo "id=${{ steps.read_config.outputs.id }}" >> $GITHUB_OUTPUT
-          echo "path=${{ steps.read_config.outputs.id }}-${{ steps.read_config.outputs.year }}" >> $GITHUB_OUTPUT
-          echo "path_with_type=${{ steps.read_config.outputs.id }}-${{ steps.read_config.outputs.year }}_${{ steps.read_config.outputs.type }}" >> $GITHUB_OUTPUT
-
-      - name: Download files & unzip
-        run: |
-          curl -L https://nlftp.mlit.go.jp/ksj/gml/data/${{ steps.variables.outputs.id }}/${{ steps.variables.outputs.path }}/${{ steps.variables.outputs.path_with_type }}.zip -o ${{ env.DATA_PATH }}.zip
-          unzip ${{ env.DATA_PATH }}.zip -d ${{ env.DATA_PATH }}
+      - name: Download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ksj-data
+          path: ${{ env.DATA_PATH }}
       
       - name: Setup Pages
         id: pages
@@ -77,11 +76,11 @@ jobs:
       
       - name: Generate
         env:
-          FULL_PATH: ${{ env.DATA_PATH }}/${{ steps.variables.outputs.path_with_type }}/utf8/${{ steps.variables.outputs.path }}
+          FULL_PATH: ${{ env.DATA_PATH }}/${{ needs.download.outputs.path_with_type }}/utf8/${{ needs.download.outputs.path }}
         run: |
           mkdir ./dist
           tippecanoe \
-          -o ./dist/${{ steps.read_config.outputs.output || steps.variables.outputs.path }}.pmtiles \
+          -o ./dist/${{ steps.read_config.outputs.output || needs.download.outputs.path }}.pmtiles \
           ${{ steps.read_config.outputs.min_zoom != '' && format('--minimum-zoom={0}', steps.read_config.outputs.min_zoom) || '' }} \
           ${{ steps.read_config.outputs.max_zoom != '' && format('--maximum-zoom={0}', steps.read_config.outputs.max_zoom) || '-zg' }} \
           ${{ steps.read_config.outputs.base_zoom != '' && format('--base-zoom={0}', steps.read_config.outputs.base_zoom) || '' }} \
