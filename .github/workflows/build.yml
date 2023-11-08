@@ -82,9 +82,9 @@ jobs:
           mkdir ./dist
           tippecanoe \
           -o ./dist/${{ steps.read_config.outputs.output || steps.variables.outputs.path }}.pmtiles \
-          ${{ steps.read_config.outputs.min_zoom != '' && join('--minimum-zoom=', steps.read_config.outputs.min_zoom) || '' }} \
-          ${{ steps.read_config.outputs.max_zoom != '' && join('--maximum-zoom=', steps.read_config.outputs.max_zoom) || '-zg' }} \
-          ${{ steps.read_config.outputs.base_zoom != '' && join('--base-zoom=', steps.read_config.outputs.base_zoom) || '' }} \
+          ${{ steps.read_config.outputs.min_zoom != '' && format('--minimum-zoom={0}', steps.read_config.outputs.min_zoom) || '' }} \
+          ${{ steps.read_config.outputs.max_zoom != '' && format('--maximum-zoom={0}', steps.read_config.outputs.max_zoom) || '-zg' }} \
+          ${{ steps.read_config.outputs.base_zoom != '' && format('--base-zoom={0}', steps.read_config.outputs.base_zoom) || '' }} \
           -L section:${{ env.FULL_PATH }}_RailroadSection2.geojson \
           -L station:${{ env.FULL_PATH }}_Station2.geojson
 
