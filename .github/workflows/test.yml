@@ -44,5 +44,7 @@ jobs:
         run: tree ${{ env.DATA_PATH }}
 
       - name: Test
+        env:
+          MIN_ZOOM: ${{ steps.variables.outputs.min_zoom }}
         run: |
-          echo ${{ format('--minimum-zoom={0}', steps.variables.outputs.min_zoom) }} }}
+          echo ${{ format('--minimum-zoom={0}', env.MIN_ZOOM) }} }}
